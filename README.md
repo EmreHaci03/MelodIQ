@@ -6,7 +6,7 @@ MelodIQ, Türkiye'deki müzik dinleme alışkanlıklarını analiz etmek ve büy
 
 MelodIQ, yüksek hacimli müzik dinleme verilerinin hızlı ve okunabilir biçimde analiz edilmesini hedefler. Uygulama, tek tek kayıt incelemek yerine veriyi özetleyen, karşılaştıran ve görselleştiren bir panel sağlar.
 
-Proje özellikle büyük veritabanlarındaki kayıtlarla çalışabilmek için tasarlanmıştır. Geliştirme ve test sürecinde `DapperDb` veritabanındaki `MusicData` tablosunda bulunan 2.100.000+ kayıt üzerinden denenmiştir.
+Proje özellikle büyük veritabanlarındaki kayıtlarla çalışabilmek için tasarlanmıştır. Geliştirme ve test sürecinde `DapperDb` veritabanındaki `MusicData` tablosunda bulunan 2.600.000+ kayıt üzerinden denenmiştir.
 
 ## Ekran Görüntüleri
 
