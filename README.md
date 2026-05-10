@@ -53,22 +53,25 @@ Proje özellikle büyük veritabanlarındaki kayıtlarla çalışabilmek için t
 * HTML, CSS, JavaScript
 
 ## Proje Yapısı
+```
 DapperProject/
-Context/
-DapperContext.cs
-Controllers/
-MusicDataController.cs
-Entities/
-MusicData.cs
-Services/
-IMusicService.cs
-MusicService.cs
-Views/
-MusicData/
-Dashboard.cshtml
-MusicList.cshtml
-UpdateMusic.cshtml
-appsettings.json
+├── Context/
+│   └── DapperContext.cs
+├── Controllers/
+│   └── MusicDataController.cs
+├── Entities/
+│   └── MusicData.cs
+├── Services/
+│   ├── IMusicService.cs
+│   └── MusicService.cs
+├── Views/
+│   └── MusicData/
+│       ├── Dashboard.cshtml
+│       ├── MusicList.cshtml
+│       └── UpdateMusic.cshtml
+├── appsettings.json
+└── Program.cs
+```
 
 ## Veritabanı
 
