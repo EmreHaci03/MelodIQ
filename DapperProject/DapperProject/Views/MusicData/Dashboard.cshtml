@@ -1,0 +1,853 @@
+﻿@{
+    Layout = null;
+    var cityData = ViewBag.CityData as Dictionary<string, int>;
+    var genreData = ViewBag.GenreData as Dictionary<string, int>;
+    var ageData = ViewBag.AgeGroupData as Dictionary<string, int>;
+    var maxCity = cityData?.Values.Max() ?? 1;
+    var maxGenre = genreData?.Values.Max() ?? 1;
+    var maxAge = ageData?.Values.Max() ?? 1;
+    var totalAge = ageData?.Values.Sum(x => (long)x) ?? 1;
+    var colors = new[] { "#8b5cf6", "#06b6d4", "#f59e0b", "#10b981", "#ec4899", "#3b82f6", "#a78bfa" };
+    var barColors = new[] { "#8b5cf6", "#06b6d4", "#f59e0b", "#10b981", "#ec4899" };
+    var platformData = ViewBag.PlatformData as Dictionary<string, int>;
+    var totalPlatform = platformData?.Values.Sum(x => (long)x) ?? 1;
+    var genreColors = new[] { "#8b5cf6", "#06b6d4", "#f59e0b", "#10b981" };
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>MelodIQ Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            min-height: 100vh;
+            background: #09090f;
+            color: #e2e8f0
+        }
+
+        .sb {
+            width: 195px;
+            background: #0c0c18;
+            border-right: 1px solid #181830;
+            padding: 20px 14px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            top: 0;
+            left: 0
+        }
+
+        .sb-logo {
+            font-size: 21px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px
+        }
+
+            .sb-logo em {
+                color: #8b5cf6;
+                font-style: normal
+            }
+
+        .sb-sub {
+            font-size: 9px;
+            color: #2a2a42;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 2px;
+            margin-bottom: 26px
+        }
+
+        .sb-sec {
+            font-size: 9px;
+            color: #2a2a42;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 8px;
+            padding-left: 8px;
+            margin-top: 10px
+        }
+
+        .sb-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 9px 11px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #3a3a58;
+            margin-bottom: 2px;
+            text-decoration: none
+        }
+
+            .sb-item.on {
+                background: #17143a;
+                color: #a78bfa
+            }
+
+            .sb-item:hover {
+                background: #111125;
+                color: #a78bfa
+            }
+
+        .sb-foot {
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid #181830;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .sb-av {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            background: #17143a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 800;
+            color: #a78bfa;
+            flex-shrink: 0
+        }
+
+        .sb-un {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e2e8f0
+        }
+
+        .sb-ur {
+            font-size: 10px;
+            color: #2a2a42
+        }
+
+        .mx {
+            flex: 1;
+            margin-left: 195px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 13px
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .tb-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.3px
+        }
+
+            .tb-title em {
+                color: #8b5cf6;
+                font-style: normal
+            }
+
+        .tb-r {
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .pill {
+            background: #17143a;
+            border: 1px solid #2d2a6e;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #a78bfa
+        }
+
+        .nb {
+            width: 32px;
+            height: 32px;
+            background: #111125;
+            border: 1px solid #181830;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .g3 {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 11px
+        }
+
+        .g2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 11px
+        }
+
+        .g21 {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 11px
+        }
+
+        .card {
+            background: #0f0f1c;
+            border: 1px solid #181830;
+            border-radius: 13px;
+            padding: 16px;
+            position: relative;
+            overflow: visible
+        }
+
+        .card-glow {
+            position: absolute;
+            top: -28px;
+            right: -28px;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: .09
+        }
+
+        .card.p .card-glow {
+            background: #8b5cf6
+        }
+
+        .card.c .card-glow {
+            background: #06b6d4
+        }
+
+        .card.a .card-glow {
+            background: #f59e0b
+        }
+
+        .card.g .card-glow {
+            background: #10b981
+        }
+
+        .card.pk .card-glow {
+            background: #ec4899
+        }
+
+        .card.b .card-glow {
+            background: #3b82f6
+        }
+
+        .card-ic {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            margin-bottom: 11px
+        }
+
+        .card.p .card-ic {
+            background: #17143a;
+            color: #a78bfa
+        }
+
+        .card.c .card-ic {
+            background: #091f2e;
+            color: #22d3ee
+        }
+
+        .card.a .card-ic {
+            background: #201400;
+            color: #fbbf24
+        }
+
+        .card.g .card-ic {
+            background: #041a0c;
+            color: #4ade80
+        }
+
+        .card.pk .card-ic {
+            background: #200818;
+            color: #f472b6
+        }
+
+        .card.b .card-ic {
+            background: #060f24;
+            color: #60a5fa
+        }
+
+        .cv {
+            font-size: 22px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
+            line-height: 1;
+            margin-bottom: 3px
+        }
+
+            .cv.sm {
+                font-size: 14px;
+                font-weight: 700;
+                line-height: 1.4
+            }
+
+        .cl {
+            font-size: 9px;
+            color: #2a2a42;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px
+        }
+
+        .cc-h {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 13px
+        }
+
+        .cc-t {
+            font-size: 9px;
+            font-weight: 700;
+            color: #2a2a42;
+            text-transform: uppercase;
+            letter-spacing: 0.8px
+        }
+
+        .cc-b {
+            font-size: 9px;
+            color: #a78bfa;
+            background: #17143a;
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-weight: 700
+        }
+
+        .ci {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 8px
+        }
+
+        .crk {
+            font-size: 9px;
+            color: #2a2a42;
+            font-weight: 700;
+            width: 12px;
+            text-align: center;
+            flex-shrink: 0
+        }
+
+        .cn {
+            font-size: 11px;
+            color: #94a3b8;
+            width: 60px;
+            flex-shrink: 0;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .cbg {
+            flex: 1;
+            background: #111125;
+            border-radius: 3px;
+            height: 5px
+        }
+
+        .cf {
+            height: 5px;
+            border-radius: 3px
+        }
+
+        .cv2 {
+            font-size: 10px;
+            color: #2a2a42;
+            width: 60px;
+            text-align: right;
+            flex-shrink: 0;
+            font-weight: 600
+        }
+
+        .dw {
+            display: flex;
+            align-items: center;
+            gap: 14px
+        }
+
+        .dl {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            flex: 1
+        }
+
+        .lr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .ll {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 500
+        }
+
+        .ld {
+            width: 7px;
+            height: 7px;
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        .lp {
+            font-size: 11px;
+            color: #2a2a42;
+            font-weight: 700
+        }
+
+        .pr-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px
+        }
+
+        .pr-ic {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 800;
+            flex-shrink: 0
+        }
+
+        .pr-nm {
+            font-size: 12px;
+            color: #e2e8f0;
+            font-weight: 600;
+            flex: 1
+        }
+
+        .pr-bg {
+            background: #111125;
+            border-radius: 3px;
+            height: 4px;
+            width: 80px
+        }
+
+        .pr-fill {
+            height: 4px;
+            border-radius: 3px
+        }
+
+        .pr-pct {
+            font-size: 10px;
+            color: #2a2a42;
+            font-weight: 700;
+            width: 26px;
+            text-align: right
+        }
+
+        .prog-wrap {
+            margin-bottom: 9px
+        }
+
+        .prog-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px
+        }
+
+        .prog-lbl {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 500
+        }
+
+        .prog-val {
+            font-size: 12px;
+            color: #e2e8f0;
+            font-weight: 700
+        }
+
+        .prog-bg {
+            background: #111125;
+            border-radius: 3px;
+            height: 7px
+        }
+
+        .prog-fill {
+            height: 7px;
+            border-radius: 3px
+        }
+
+        .widget-row {
+            display: flex;
+            gap: 8px
+        }
+
+        .widget-item {
+            flex: 1;
+            background: #111125;
+            border-radius: 9px;
+            padding: 10px 8px;
+            text-align: center
+        }
+
+        .wi-val {
+            font-size: 16px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 2px
+        }
+
+        .wi-lbl {
+            font-size: 9px;
+            color: #2a2a42;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px
+        }
+
+        .age-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px
+        }
+
+        .age-label {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 600;
+            width: 40px;
+            flex-shrink: 0
+        }
+
+        .age-bar-bg {
+            flex: 1;
+            background: #111125;
+            border-radius: 4px;
+            height: 20px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .age-bar-fill {
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px
+        }
+
+            .age-bar-fill span {
+                font-size: 10px;
+                font-weight: 700;
+                color: rgba(255,255,255,0.9)
+            }
+
+        .age-count {
+            font-size: 11px;
+            color: #2a2a42;
+            font-weight: 700;
+            width: 65px;
+            text-align: right;
+            flex-shrink: 0
+        }
+
+        #map-wrapper {
+            width: 100%;
+            height: 350px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            z-index: 0
+        }
+
+        #map {
+            width: 100%;
+            height: 100%
+        }
+    </style>
+</head>
+<body>
+    <div class="sb">
+        <div class="sb-logo">Melod<em>IQ</em></div>
+        <div class="sb-sub">Streaming Dashboard</div>
+        <div class="sb-sec">Menü</div>
+        <a class="sb-item on"><i class="ti ti-layout-dashboard" style="font-size:15px"></i> Dashboard</a>
+        <a href="/MusicData/MusicList" class="sb-item"><i class="ti ti-table" style="font-size:15px"></i> Veri Tablosu</a>
+        <div class="sb-foot">
+            <div class="sb-av">M</div>
+            <div><div class="sb-un">MelodIQ</div><div class="sb-ur">Admin Panel</div></div>
+        </div>
+    </div>
+
+    <div class="mx">
+        <div class="topbar">
+            <div class="tb-title">Melod<em>IQ</em> &mdash; Analiz Paneli</div>
+            <div class="tb-r">
+                <div class="pill"><i class="ti ti-calendar" style="font-size:11px;vertical-align:-1px;margin-right:3px"></i>2022 – 2026</div>
+                <div class="nb"><i class="ti ti-bell" style="font-size:15px;color:#2a2a42"></i></div>
+            </div>
+        </div>
+
+        <div class="g3">
+            <div class="card p"><div class="card-glow"></div><div class="card-ic"><i class="ti ti-headphones"></i></div><div class="cv">@ViewBag.TotalListenCount.ToString("N0")</div><div class="cl">Toplam Dinlenme</div></div>
+            <div class="card c"><div class="card-glow"></div><div class="card-ic"><i class="ti ti-database"></i></div><div class="cv">@ViewBag.TotalCount.ToString("N0")</div><div class="cl">Toplam Kayıt</div></div>
+            <div class="card a"><div class="card-glow"></div><div class="card-ic"><i class="ti ti-trophy"></i></div><div class="cv sm">@ViewBag.MostListenedSong</div><div class="cl">En Çok Dinlenen Şarkı</div></div>
+        </div>
+
+        <div class="g3">
+            <div class="card g">
+                <div class="card-glow"></div>
+                <div class="card-ic">
+                    @{
+                        var platform = (string)ViewBag.MostUsedPlatform;
+                        var platformIcon = platform == "Spotify" ? "ti-brand-spotify" :
+                        platform == "YouTube" ? "ti-brand-youtube" :
+                        platform == "Apple Music" ? "ti-brand-apple" : "ti-music";
+                    }
+                    <i class="ti @platformIcon"></i>
+                </div>
+                <div class="cv sm">@ViewBag.MostUsedPlatform</div>
+                <div class="cl">En Popüler Platform</div>
+            </div>
+            <div class="card pk"><div class="card-glow"></div><div class="card-ic"><i class="ti ti-map-pin"></i></div><div class="cv sm">@(cityData?.OrderByDescending(x => x.Value).FirstOrDefault().Key ?? "-")</div><div class="cl">En Çok Dinlenen İl</div></div>
+            <div class="card b"><div class="card-glow"></div><div class="card-ic"><i class="ti ti-microphone"></i></div><div class="cv sm">@(genreData?.OrderByDescending(x => x.Value).FirstOrDefault().Key ?? "-")</div><div class="cl">En Popüler Tür</div></div>
+        </div>
+
+        <div class="g21">
+            <div class="card">
+                <div class="cc-h"><div class="cc-t">İllere Göre Dinlenme</div><div class="cc-b">Top 7</div></div>
+                @{
+                    int rank = 1;
+                }
+                @foreach (var item in cityData?.OrderByDescending(x => x.Value).Take(7) ?? Enumerable.Empty<KeyValuePair<string, int>>())
+                {
+                    var pct = (int)((double)item.Value / maxCity * 100);
+                    var color = colors[(rank - 1) % colors.Length];
+                    <div class="ci">
+                        <span class="crk">@rank</span>
+                        <span class="cn">@item.Key</span>
+                        <div class="cbg"><div class="cf" style="width:@pct%;background:@color"></div></div>
+                        <span class="cv2">@item.Value.ToString("N0")</span>
+                    </div>
+                    rank++;
+                }
+            </div>
+            <div class="card">
+                <div class="cc-h"><div class="cc-t">Türlere Göre Dağılım</div></div>
+                <div class="dw">
+                    <svg width="90" height="90" viewBox="0 0 90 90">
+                        @{
+                            var totalGenre = genreData?.Values.Sum(x => (long)x) ?? 1;
+                            double offset = 0;
+                            int gi = 0;
+                            foreach (var g in genreData?.OrderByDescending(x => x.Value) ?? Enumerable.Empty<KeyValuePair<string, int>>())
+                            {
+                                var arc = (double)g.Value / totalGenre * 201;
+                                <circle cx="45" cy="45" r="32" fill="none" stroke="@genreColors[gi % genreColors.Length]" stroke-width="14" stroke-dasharray="@arc 201" stroke-dashoffset="@(-offset)" />
+                                offset += arc;
+                                gi++;
+                            }
+                        }
+                        <circle cx="45" cy="45" r="28" fill="#0f0f1c" />
+                        <text x="45" y="42" text-anchor="middle" font-size="7" fill="#2a2a42" font-family="Inter" font-weight="700">TOPLAM</text>
+                        <text x="45" y="53" text-anchor="middle" font-size="9" font-weight="800" fill="#fff" font-family="Inter">@(((double)(ViewBag.TotalListenCount) / 1000000).ToString("F1"))M</text>
+                    </svg>
+                    <div class="dl">
+                        @{
+                            int gci = 0;
+                        }
+                        @foreach (var g in genreData?.OrderByDescending(x => x.Value) ?? Enumerable.Empty<KeyValuePair<string, int>>())
+                        {
+                            var pctG = (int)((double)g.Value / totalGenre * 100);
+                            <div class="lr">
+                                <div class="ll"><div class="ld" style="background:@genreColors[gci % genreColors.Length]"></div>@g.Key</div>
+                                <div class="lp">%@pctG</div>
+                            </div>
+                            gci++;
+                        }
+                    </div>
+                </div>
+                <div style="margin-top:12px">
+                    <div class="cc-t" style="margin-bottom:10px">Platform Dağılımı</div>
+                    @{
+                        var platformColors = new Dictionary<string, (string, string, string)>
+                        {
+                            ["Spotify"] = ("#041a0c", "#4ade80", "S"),
+                            ["YouTube"] = ("#1a0404", "#f87171", "Y"),
+                            ["Apple Music"] = ("#060f24", "#60a5fa", "A")
+                        };
+                        var maxPlatform = platformData?.Values.Max() ?? 1;
+                    }
+                    @foreach (var p in platformData?.OrderByDescending(x => x.Value) ?? Enumerable.Empty<KeyValuePair<string, int>>())
+                    {
+                        var pc = platformColors.ContainsKey(p.Key) ? platformColors[p.Key] : ("#111125", "#94a3b8", "?");
+                        var pctP = (int)((double)p.Value / totalPlatform * 100);
+                        var barPct = (int)((double)p.Value / maxPlatform * 100);
+                        <div class="pr-row">
+                            <div class="pr-ic" style="background:@pc.Item1;color:@pc.Item2">@pc.Item3</div>
+                            <div class="pr-nm">@p.Key</div>
+                            <div class="pr-bg"><div class="pr-fill" style="width:@barPct%;background:@pc.Item2"></div></div>
+                            <div class="pr-pct">%@pctP</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="g2">
+            <div class="card">
+                <div class="cc-h"><div class="cc-t">Yaş Gruplarına Göre Dinlenme</div></div>
+                @{
+                    int ai = 0;
+                }
+                @foreach (var a in ageData?.OrderByDescending(x => x.Value) ?? Enumerable.Empty<KeyValuePair<string, int>>())
+                {
+                    var pctA = (int)((double)a.Value / maxAge * 100);
+                    var pctLabel = (int)((double)a.Value / totalAge * 100);
+                    var aColor = barColors[ai % barColors.Length];
+                    <div class="age-row">
+                        <div class="age-label">@a.Key</div>
+                        <div class="age-bar-bg">
+                            <div class="age-bar-fill" style="width:@pctA%;background:@aColor"><span>%@pctLabel</span></div>
+                        </div>
+                        <div class="age-count">@a.Value.ToString("N0")</div>
+                    </div>
+                    ai++;
+                }
+                @{
+                    var topAge = ageData?.OrderByDescending(x => x.Value).FirstOrDefault().Key ?? "-";
+                    var topAgePct = ageData != null ? (int)((double)ageData.Values.Max() / totalAge * 100) : 0;
+                    var bottomAge = ageData?.OrderBy(x => x.Value).FirstOrDefault().Key ?? "-";
+                }
+                <div class="widget-row" style="margin-top:14px">
+                    <div class="widget-item"><div class="wi-val" style="color:#06b6d4">@topAge</div><div class="wi-lbl">En Aktif Grup</div></div>
+                    <div class="widget-item"><div class="wi-val" style="color:#10b981">%@topAgePct</div><div class="wi-lbl">En Yüksek Pay</div></div>
+                    <div class="widget-item"><div class="wi-val" style="color:#ec4899">@bottomAge</div><div class="wi-lbl">En Az Aktif</div></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="cc-h"><div class="cc-t">Tür Progress Barlar</div></div>
+                @{
+                    int pi = 0;
+                }
+                @foreach (var g in genreData?.OrderByDescending(x => x.Value) ?? Enumerable.Empty<KeyValuePair<string, int>>())
+                {
+                    var pctPBar = (int)((double)g.Value / maxGenre * 100);
+                    var pctPLabel = (int)((double)g.Value / (genreData?.Values.Sum(x => (long)x) ?? 1) * 100);
+                    <div class="prog-wrap">
+                        <div class="prog-top"><span class="prog-lbl">@g.Key</span><span class="prog-val">%@pctPLabel</span></div>
+                        <div class="prog-bg"><div class="prog-fill" style="width:@pctPBar%;background:@genreColors[pi % genreColors.Length]"></div></div>
+                    </div>
+                    pi++;
+                }
+                <div class="widget-row" style="margin-top:14px">
+                    <div class="widget-item"><div class="wi-val">@(genreData?.Count ?? 0)</div><div class="wi-lbl">Tür</div></div>
+                    <div class="widget-item"><div class="wi-val">@(cityData?.Count ?? 0)</div><div class="wi-lbl">Şehir</div></div>
+                    <div class="widget-item"><div class="wi-val">3</div><div class="wi-lbl">Platform</div></div>
+                    <div class="widget-item"><div class="wi-val">@(ageData?.Count ?? 0)</div><div class="wi-lbl">Yaş Grubu</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px">
+            <div class="cc-h">
+                <div class="cc-t">Türkiye Şehir Yoğunluk Haritası</div>
+                <div class="cc-b">Canlı Veri</div>
+            </div>
+            <div id="map-wrapper"><div id="map"></div></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        (function () {
+            var map = L.map('map', { center: [39.0, 35.0], zoom: 6, zoomControl: true });
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19
+            }).addTo(map);
+
+            var cityCoords = {
+                '\u0130stanbul':   [41.0082, 28.9784],
+                'Ankara':          [39.9334, 32.8597],
+                '\u0130zmir':      [38.4192, 27.1287],
+                'Bursa':           [40.1826, 29.0665],
+                'Antalya':         [36.8969, 30.7133],
+                'Adana':           [37.0000, 35.3213],
+                'Konya':           [37.8714, 32.4846],
+                'Gaziantep':       [37.0662, 37.3833],
+                'Eski\u015fehir':  [39.7767, 30.5206],
+                'Diyarbak\u0131r': [37.9144, 40.2306],
+                'Samsun':          [41.2867, 36.3300],
+                'Trabzon':         [41.0015, 39.7178],
+                'Kayseri':         [38.7312, 35.4787],
+                'Mersin':          [36.8000, 34.6333],
+                'Rize':            [41.0201, 40.5234]
+            };
+
+                            var mapData = {
+            @foreach (var item in cityData?.OrderByDescending(x => x.Value) ?? Enumerable.Empty<KeyValuePair<string, int>>())
+            {
+                    @:@Html.Raw("'" + item.Key + "'") : @item.Value,
+            }
+        };
+
+            var maxVal = Math.max.apply(null, Object.values(mapData));
+
+            for (var city in mapData) {
+                if (!cityCoords[city]) continue;
+                var val = mapData[city];
+                var ratio = val / maxVal;
+                var radius = 10 + ratio * 40;
+
+                L.circleMarker(cityCoords[city], {
+                    radius: radius,
+                    fillColor: ratio > 0.8 ? '#8b5cf6' : ratio > 0.6 ? '#06b6d4' : ratio > 0.4 ? '#f59e0b' : '#10b981',
+                    color: '#fff', weight: 1, opacity: 0.8, fillOpacity: 0.4 + ratio * 0.5
+                }).addTo(map).bindPopup(
+                    '<div style="font-family:Inter,sans-serif;background:#1a1a2e;color:#e2e8f0;padding:8px;border-radius:8px">' +
+                    '<strong style="color:#a78bfa">' + city + '</strong><br>' +
+                    '<span style="font-size:12px">Dinlenme: ' + val.toLocaleString("tr-TR") + '</span></div>'
+                );
+            }
+            setTimeout(function () { map.invalidateSize(); }, 300);
+        })();
+    </script>
+</body>
+</html>

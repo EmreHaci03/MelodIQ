@@ -1,0 +1,573 @@
+﻿@model List<DapperProject.Entities.MusicData>
+@{
+    Layout = null;
+    int totalCount = ViewBag.TotalCount;
+    int currentPage = ViewBag.CurrentPage;
+    int pageSize = ViewBag.PageSize;
+    int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>MelodIQ - Veri Tablosu</title>
+    <link href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            min-height: 100vh;
+            background: #09090f;
+            color: #e2e8f0
+        }
+
+        .sb {
+            width: 195px;
+            background: #0c0c18;
+            border-right: 1px solid #181830;
+            padding: 20px 14px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            top: 0;
+            left: 0
+        }
+
+        .sb-logo {
+            font-size: 21px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px
+        }
+
+            .sb-logo em {
+                color: #8b5cf6;
+                font-style: normal
+            }
+
+        .sb-sub {
+            font-size: 9px;
+            color: #2a2a42;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 2px;
+            margin-bottom: 26px
+        }
+
+        .sb-sec {
+            font-size: 9px;
+            color: #2a2a42;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 8px;
+            padding-left: 8px;
+            margin-top: 10px
+        }
+
+        .sb-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 9px 11px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #3a3a58;
+            margin-bottom: 2px;
+            text-decoration: none
+        }
+
+            .sb-item.on {
+                background: #17143a;
+                color: #a78bfa
+            }
+
+            .sb-item:hover {
+                background: #111125;
+                color: #a78bfa
+            }
+
+        .sb-foot {
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid #181830;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .sb-av {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            background: #17143a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 800;
+            color: #a78bfa;
+            flex-shrink: 0
+        }
+
+        .sb-un {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e2e8f0
+        }
+
+        .sb-ur {
+            font-size: 10px;
+            color: #2a2a42
+        }
+
+        .mx {
+            flex: 1;
+            margin-left: 195px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .tb-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.3px
+        }
+
+            .tb-title em {
+                color: #8b5cf6;
+                font-style: normal
+            }
+
+        .tb-r {
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .pill {
+            background: #17143a;
+            border: 1px solid #2d2a6e;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #a78bfa
+        }
+
+        .card {
+            background: #0f0f1c;
+            border: 1px solid #181830;
+            border-radius: 13px;
+            padding: 20px
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 16px
+        }
+
+        .search-input {
+            background: #111125;
+            border: 1px solid #181830;
+            border-radius: 9px;
+            padding: 9px 14px;
+            color: #e2e8f0;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            width: 220px
+        }
+
+            .search-input:focus {
+                outline: none;
+                border-color: #8b5cf6
+            }
+
+        .search-btn {
+            background: #8b5cf6;
+            border: none;
+            border-radius: 9px;
+            padding: 9px 16px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif
+        }
+
+            .search-btn:hover {
+                background: #7c3aed
+            }
+
+        .reset-btn {
+            background: #111125;
+            border: 1px solid #181830;
+            border-radius: 9px;
+            padding: 9px 16px;
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px
+        }
+
+        .info-text {
+            font-size: 12px;
+            color: #475569
+        }
+
+            .info-text span {
+                color: #a78bfa;
+                font-weight: 700
+            }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        thead tr {
+            border-bottom: 1px solid #181830
+        }
+
+        th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            color: #2a2a42;
+            text-transform: uppercase;
+            letter-spacing: 0.8px
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #111125;
+            transition: background .1s
+        }
+
+            tbody tr:hover {
+                background: #111125
+            }
+
+        td {
+            padding: 11px 14px;
+            font-size: 13px;
+            color: #94a3b8
+        }
+
+            td.id {
+                color: #475569;
+                font-size: 11px;
+                font-weight: 700
+            }
+
+            td.name {
+                color: #e2e8f0;
+                font-weight: 600
+            }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700
+        }
+
+            .badge.pop {
+                background: #1a1740;
+                color: #a78bfa
+            }
+
+            .badge.rock {
+                background: #091f2e;
+                color: #22d3ee
+            }
+
+            .badge.hiphop {
+                background: #201400;
+                color: #fbbf24
+            }
+
+            .badge.arabesk {
+                background: #041a0c;
+                color: #4ade80
+            }
+
+            .badge.spotify {
+                background: #041a0c;
+                color: #4ade80
+            }
+
+            .badge.youtube {
+                background: #1a0404;
+                color: #f87171
+            }
+
+            .badge.apple {
+                background: #060f24;
+                color: #60a5fa
+            }
+
+        .actions {
+            display: flex;
+            gap: 6px
+        }
+
+        .btn-edit {
+            background: #17143a;
+            border: 1px solid #2d2a6e;
+            border-radius: 7px;
+            padding: 5px 10px;
+            color: #a78bfa;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px
+        }
+
+            .btn-edit:hover {
+                background: #1e1b4b
+            }
+
+        .btn-del {
+            background: #1a0404;
+            border: 1px solid #3a0808;
+            border-radius: 7px;
+            padding: 5px 10px;
+            color: #f87171;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px
+        }
+
+            .btn-del:hover {
+                background: #2d0a0a
+            }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 16px;
+            justify-content: center
+        }
+
+        .page-btn {
+            background: #111125;
+            border: 1px solid #181830;
+            border-radius: 8px;
+            padding: 7px 13px;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center
+        }
+
+            .page-btn:hover {
+                background: #17143a;
+                color: #a78bfa
+            }
+
+            .page-btn.active {
+                background: #17143a;
+                border-color: #2d2a6e;
+                color: #a78bfa
+            }
+
+            .page-btn.disabled {
+                opacity: 0.3;
+                pointer-events: none
+            }
+
+        .page-info {
+            font-size: 12px;
+            color: #475569;
+            margin: 0 8px
+        }
+    </style>
+</head>
+<body>
+    <div class="sb">
+        <div class="sb-logo">Melod<em>IQ</em></div>
+        <div class="sb-sub">Streaming Dashboard</div>
+        <div class="sb-sec">Menü</div>
+        <a href="/MusicData/Dashboard" class="sb-item"><i class="ti ti-layout-dashboard" style="font-size:15px"></i> Dashboard</a>
+        <a href="/MusicData/MusicList" class="sb-item on"><i class="ti ti-table" style="font-size:15px"></i> Veri Tablosu</a>
+        <div class="sb-foot">
+            <div class="sb-av">M</div>
+            <div><div class="sb-un">MelodIQ</div><div class="sb-ur">Admin Panel</div></div>
+        </div>
+    </div>
+
+    <div class="mx">
+        <div class="topbar">
+            <div class="tb-title">Melod<em>IQ</em> &mdash; Veri Tablosu</div>
+            <div class="tb-r">
+                <div class="pill">@totalCount.ToString("N0") Kayıt</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="search-bar">
+                <form method="get" action="/MusicData/MusicList" style="display:flex;gap:10px;align-items:center">
+                    <input type="number" name="id" class="search-input" placeholder="ID ile ara..." value="@(Context.Request.Query["id"])" />
+                    <input type="text" name="songName" class="search-input" placeholder="Şarkı adı ile ara..." value="@(Context.Request.Query["songName"])" />
+                    <button type="submit" class="search-btn">
+                        <i class="ti ti-search" style="font-size:13px;vertical-align:-1px;margin-right:4px"></i>Ara
+                    </button>
+                    <a href="/MusicData/MusicList" class="reset-btn">
+                        <i class="ti ti-x" style="font-size:13px"></i>Temizle
+                    </a>
+                </form>
+            </div>
+
+            <div class="info-row">
+                <div class="info-text">Toplam <span>@totalCount.ToString("N0")</span> kayıt — Sayfa <span>@currentPage</span> / <span>@totalPages</span></div>
+                <div class="info-text">Sayfa başı <span>@pageSize</span> kayıt gösteriliyor</div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Şarkı Adı</th>
+                        <th>Sanatçı</th>
+                        <th>Tür</th>
+                        <th>Şehir</th>
+                        <th>Platform</th>
+                        <th>Dinlenme</th>
+                        <th>Yaş Grubu</th>
+                        <th>Tarih</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var genreBadge = item.Genre == "Pop" ? "pop" :
+                        item.Genre == "Rock" ? "rock" :
+                        item.Genre == "Hiphop" ? "hiphop" : "arabesk";
+                        var platBadge = item.Platform == "Spotify" ? "spotify" :
+                        item.Platform == "YouTube" ? "youtube" : "apple";
+                        <tr>
+                            <td class="id">#@item.Id</td>
+                            <td class="name">@item.SongName</td>
+                            <td>@item.ArtistName</td>
+                            <td><span class="badge @genreBadge">@item.Genre</span></td>
+                            <td>@item.City</td>
+                            <td><span class="badge @platBadge">@item.Platform</span></td>
+                            <td>@item.ListenCount.ToString("N0")</td>
+                            <td>@item.AgeGroup</td>
+                            <td>@item.ListenDate.ToString("dd.MM.yyyy")</td>
+                            <td>
+                                <div class="actions">
+                                    <a href="/MusicData/UpdateMusic/@item.Id" class="btn-edit"><i class="ti ti-edit" style="font-size:12px"></i>Düzenle</a>
+                                    <a href="javascript:void(0)" onclick="confirmDelete(@item.Id)" class="btn-del"><i class="ti ti-trash" style="font-size:12px"></i>Sil </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <a href="/MusicData/MusicList?page=1" class="page-btn @(currentPage == 1 ? "disabled" : "")">
+                    <i class="ti ti-chevrons-left" style="font-size:14px"></i>
+                </a>
+                <a href="/MusicData/MusicList?page=@(currentPage - 1)" class="page-btn @(currentPage == 1 ? "disabled" : "")">
+                    <i class="ti ti-chevron-left" style="font-size:14px"></i>
+                </a>
+
+                @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+                {
+                    <a href="/MusicData/MusicList?page=@i" class="page-btn @(i == currentPage ? "active" : "")">@i</a>
+                }
+
+                <a href="/MusicData/MusicList?page=@(currentPage + 1)" class="page-btn @(currentPage == totalPages ? "disabled" : "")">
+                    <i class="ti ti-chevron-right" style="font-size:14px"></i>
+            </div>
+            <a href="/MusicData/MusicList?page=@totalPages" class="page-btn @(currentPage == totalPages ? "disabled" : "")">
+                <i class="ti ti-chevrons-right" style="font-size:14px"></i>
+            </a>
+        </div>
+    </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmDelete(id) {
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: 'Bu kayıt kalıcı olarak silinecek!',
+                icon: 'warning',
+                background: '#0f0f1c',
+                color: '#e2e8f0',
+                iconColor: '#f59e0b',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#17143a',
+                confirmButtonText: '<i class="ti ti-trash"></i> Evet, Sil!',
+                cancelButtonText: 'İptal',
+                customClass: {
+                    popup: 'swal-dark',
+                    confirmButton: 'swal-confirm',
+                    cancelButton: 'swal-cancel'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Siliniyor...',
+                        background: '#0f0f1c',
+                        color: '#e2e8f0',
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    window.location.href = '/MusicData/DeleteMusic/' + id;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

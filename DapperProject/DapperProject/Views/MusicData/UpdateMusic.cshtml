@@ -1,0 +1,549 @@
+﻿@model DapperProject.Entities.MusicData
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>MelodIQ - Kayıt Güncelle</title>
+    <link href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet">
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            min-height: 100vh;
+            background: #09090f;
+            color: #e2e8f0
+        }
+
+        .sb {
+            width: 195px;
+            background: #0c0c18;
+            border-right: 1px solid #181830;
+            padding: 20px 14px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            top: 0;
+            left: 0
+        }
+
+        .sb-logo {
+            font-size: 21px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px
+        }
+
+            .sb-logo em {
+                color: #8b5cf6;
+                font-style: normal
+            }
+
+        .sb-sub {
+            font-size: 9px;
+            color: #2a2a42;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 2px;
+            margin-bottom: 26px
+        }
+
+        .sb-sec {
+            font-size: 9px;
+            color: #2a2a42;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 8px;
+            padding-left: 8px;
+            margin-top: 10px
+        }
+
+        .sb-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 9px 11px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #3a3a58;
+            margin-bottom: 2px;
+            text-decoration: none
+        }
+
+            .sb-item.on {
+                background: #17143a;
+                color: #a78bfa
+            }
+
+            .sb-item:hover {
+                background: #111125;
+                color: #a78bfa
+            }
+
+        .sb-foot {
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid #181830;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .sb-av {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            background: #17143a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 800;
+            color: #a78bfa;
+            flex-shrink: 0
+        }
+
+        .sb-un {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e2e8f0
+        }
+
+        .sb-ur {
+            font-size: 10px;
+            color: #2a2a42
+        }
+
+        .mx {
+            flex: 1;
+            margin-left: 195px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .tb-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.3px
+        }
+
+            .tb-title em {
+                color: #8b5cf6;
+                font-style: normal
+            }
+
+        .tb-r {
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .id-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #17143a;
+            border: 1px solid #2d2a6e;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #a78bfa
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 16px;
+            align-items: start
+        }
+
+        .card {
+            background: #0f0f1c;
+            border: 1px solid #181830;
+            border-radius: 13px;
+            padding: 24px
+        }
+
+        .card-title {
+            font-size: 10px;
+            font-weight: 700;
+            color: #2a2a42;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+            .card-title i {
+                font-size: 15px;
+                color: #8b5cf6
+            }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+            .form-group.full {
+                grid-column: span 2
+            }
+
+        label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.6px
+        }
+
+        input, select {
+            background: #111125;
+            border: 1px solid #181830;
+            border-radius: 9px;
+            padding: 10px 14px;
+            color: #e2e8f0;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            width: 100%;
+            transition: border-color .15s
+        }
+
+            input:focus, select:focus {
+                outline: none;
+                border-color: #8b5cf6
+            }
+
+            select option {
+                background: #111125
+            }
+
+        .btn-wrap {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px
+        }
+
+        .btn-save {
+            background: #8b5cf6;
+            border: none;
+            border-radius: 9px;
+            padding: 11px 22px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: background .15s
+        }
+
+            .btn-save:hover {
+                background: #7c3aed
+            }
+
+        .btn-cancel {
+            background: #111125;
+            border: 1px solid #181830;
+            border-radius: 9px;
+            padding: 11px 22px;
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all .15s
+        }
+
+            .btn-cancel:hover {
+                background: #17143a;
+                color: #a78bfa;
+                border-color: #2d2a6e
+            }
+
+        .info-card {
+            display: flex;
+            flex-direction: column;
+            gap: 12px
+        }
+
+        .info-item {
+            background: #111125;
+            border-radius: 10px;
+            padding: 14px 16px
+        }
+
+        .info-item-label {
+            font-size: 9px;
+            font-weight: 700;
+            color: #2a2a42;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 5px
+        }
+
+        .info-item-val {
+            font-size: 13px;
+            font-weight: 600;
+            color: #e2e8f0
+        }
+
+            .info-item-val.purple {
+                color: #a78bfa
+            }
+
+            .info-item-val.cyan {
+                color: #22d3ee
+            }
+
+            .info-item-val.amber {
+                color: #fbbf24
+            }
+
+            .info-item-val.green {
+                color: #4ade80
+            }
+
+        .divider {
+            height: 1px;
+            background: #181830;
+            margin: 4px 0
+        }
+
+        .warn-box {
+            background: #1a0c00;
+            border: 1px solid #3a1e00;
+            border-radius: 10px;
+            padding: 14px 16px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start
+        }
+
+            .warn-box i {
+                color: #fbbf24;
+                font-size: 16px;
+                flex-shrink: 0;
+                margin-top: 1px
+            }
+
+        .warn-text {
+            font-size: 12px;
+            color: #92681a;
+            line-height: 1.5
+        }
+    </style>
+</head>
+<body>
+    <div class="sb">
+        <div class="sb-logo">Melod<em>IQ</em></div>
+        <div class="sb-sub">Streaming Dashboard</div>
+        <div class="sb-sec">Menü</div>
+        <a href="/MusicData/Dashboard" class="sb-item"><i class="ti ti-layout-dashboard" style="font-size:15px"></i> Dashboard</a>
+        <a href="/MusicData/MusicList" class="sb-item on"><i class="ti ti-table" style="font-size:15px"></i> Veri Tablosu</a>
+        <div class="sb-sec">Sistem</div>
+        <div class="sb-item"><i class="ti ti-settings" style="font-size:15px"></i> Ayarlar</div>
+        <div class="sb-foot">
+            <div class="sb-av">M</div>
+            <div><div class="sb-un">MelodIQ</div><div class="sb-ur">Admin Panel</div></div>
+        </div>
+    </div>
+
+    <div class="mx">
+        <div class="topbar">
+            <div class="tb-title">Melod<em>IQ</em> &mdash; Kayıt Güncelle</div>
+            <div class="tb-r">
+                <div class="id-badge"><i class="ti ti-hash" style="font-size:13px"></i> ID: @Model.Id</div>
+                <a href="/MusicData/MusicList" class="btn-cancel" style="padding:6px 14px;font-size:12px">
+                    <i class="ti ti-arrow-left" style="font-size:13px"></i>Geri Dön
+                </a>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="card">
+                <div class="card-title"><i class="ti ti-edit"></i> Kayıt Bilgilerini Düzenle</div>
+                <form method="post" action="/MusicData/UpdateMusic">
+                    <input type="hidden" name="Id" value="@Model.Id" />
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Şarkı Adı</label>
+                            <input type="text" name="SongName" value="@Model.SongName" />
+                        </div>
+                        <div class="form-group">
+                            <label>Sanatçı</label>
+                            <input type="text" name="ArtistName" value="@Model.ArtistName" />
+                        </div>
+                        <div class="form-group">
+                            <label>Tür</label>
+                            <select name="Genre">
+                                @foreach (var genre in new[] { "Pop", "Rock", "Hiphop", "Arabesk" })
+                                {
+                                    if (Model.Genre == genre)
+                                    {
+                                        <option value="@genre" selected>@genre</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@genre">@genre</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Şehir</label>
+                            <select name="City">
+                                @foreach (var city in new[] { "İstanbul", "Ankara", "İzmir", "Bursa", "Antalya", "Adana", "Konya", "Gaziantep", "Eskişehir", "Diyarbakır", "Samsun", "Trabzon", "Kayseri", "Mersin", "Rize" })
+                                {
+                                    if (Model.City == city)
+                                    {
+                                        <option value="@city" selected>@city</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@city">@city</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Platform</label>
+                            <select name="Platform">
+                                @foreach (var plat in new[] { "Spotify", "YouTube", "Apple Music" })
+                                {
+                                    if (Model.Platform == plat)
+                                    {
+                                        <option value="@plat" selected>@plat</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@plat">@plat</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Dinlenme Sayısı</label>
+                            <input type="number" name="ListenCount" value="@Model.ListenCount" />
+                        </div>
+                        <div class="form-group">
+                            <label>Yaş Grubu</label>
+                            <select name="AgeGroup">
+                                @foreach (var age in new[] { "13-17", "18-24", "25-34", "35-44", "45+" })
+                                {
+                                    if (Model.AgeGroup == age)
+                                    {
+                                        <option value="@age" selected>@age</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@age">@age</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tarih</label>
+                            <input type="date" name="ListenDate" value="@Model.ListenDate.ToString("yyyy-MM-dd")" />
+                        </div>
+                    </div>
+                    <div class="btn-wrap">
+                        <button type="submit" class="btn-save">
+                            <i class="ti ti-device-floppy" style="font-size:15px"></i>Değişiklikleri Kaydet
+                        </button>
+                        <a href="/MusicData/MusicList" class="btn-cancel">
+                            <i class="ti ti-x" style="font-size:15px"></i>İptal
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="info-card">
+                <div class="card">
+                    <div class="card-title"><i class="ti ti-info-circle"></i> Mevcut Kayıt Bilgileri</div>
+                    <div class="info-item">
+                        <div class="info-item-label">Şarkı</div>
+                        <div class="info-item-val purple">@Model.SongName</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="info-item">
+                        <div class="info-item-label">Sanatçı</div>
+                        <div class="info-item-val">@Model.ArtistName</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="info-item">
+                        <div class="info-item-label">Tür</div>
+                        <div class="info-item-val cyan">@Model.Genre</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="info-item">
+                        <div class="info-item-label">Şehir</div>
+                        <div class="info-item-val">@Model.City</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="info-item">
+                        <div class="info-item-label">Platform</div>
+                        <div class="info-item-val green">@Model.Platform</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="info-item">
+                        <div class="info-item-label">Dinlenme Sayısı</div>
+                        <div class="info-item-val amber">@Model.ListenCount.ToString("N0")</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="info-item">
+                        <div class="info-item-label">Yaş Grubu</div>
+                        <div class="info-item-val">@Model.AgeGroup</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="info-item">
+                        <div class="info-item-label">Tarih</div>
+                        <div class="info-item-val">@Model.ListenDate.ToString("dd.MM.yyyy")</div>
+                    </div>
+                </div>
+
+                <div class="warn-box">
+                    <i class="ti ti-alert-triangle"></i>
+                    <div class="warn-text">Yaptığınız değişiklikler kaydedildikten sonra geri alınamaz. Lütfen dikkatli olun.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
